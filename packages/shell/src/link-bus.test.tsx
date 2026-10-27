@@ -21,7 +21,7 @@ describe("pane bus POC", () => {
     fireEvent.click(screen.getByRole("button", { name: "Send ping" }));
     await waitFor(() => {
       expect(screen.getByText("ping")).toBeTruthy();
-      expect(screen.getByText("send")).toBeTruthy();
+      expect(document.querySelector(".wh-bus-from")?.textContent).toBe("send");
     });
   });
 });

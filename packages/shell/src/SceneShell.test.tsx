@@ -19,7 +19,7 @@ describe("SceneShell UX", () => {
   it("renders pane widgets and a focus timer", () => {
     render(<SceneShell scene={duet} />);
     expect(screen.getByLabelText("Zoom out")).toBeTruthy();
-    expect(screen.getByText("Focus")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Start" })).toBeTruthy();
     expect(screen.getByRole("separator")).toBeTruthy();
   });
 });

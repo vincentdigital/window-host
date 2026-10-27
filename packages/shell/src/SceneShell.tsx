@@ -10,6 +10,7 @@ import {
 import type { PaneHost, Scene } from "@window-host/schema";
 import { PaneBusProvider, PaneIdProvider, renderPaneHost } from "@window-host/widgets";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { PaneChrome } from "./PaneChrome.js";
 import { PaneComposer } from "./PaneComposer.js";
 
 function readSplit(key: string, fallback: number): number {
@@ -90,11 +91,11 @@ export function SceneShell({ scene }: { scene: Scene }) {
       <div className="wh-scene" data-scene={effectiveScene.id}>
         <button
           type="button"
-          className="wh-compose-trigger"
+          className="wh-scene-layout-link"
           onClick={() => setComposerOpen(true)}
           aria-haspopup="dialog"
         >
-          Compose
+          All panes…
         </button>
         <div
           className="wh-row"
@@ -105,10 +106,17 @@ export function SceneShell({ scene }: { scene: Scene }) {
           {effectiveScene.panes.flatMap((pane, i) => {
             const flex = fractions.find((f) => f.paneId === pane.id)?.flex ?? 1;
             const out = [
-              <div key={pane.id} className="wh-pane" style={{ flex }} data-pane={pane.id}>
-                <PaneIdProvider paneId={pane.id}>
-                  {renderPaneHost(pane.host)}
-                </PaneIdProvider>
+              <div key={pane.id} className="wh-pane" style={{ flex }}>
+                <PaneChrome
+                  scene={scene}
+                  paneId={pane.id}
+                  hosts={composeHosts}
+                  onHostsChange={setComposeHosts}
+                >
+                  <PaneIdProvider paneId={pane.id}>
+                    {renderPaneHost(pane.host)}
+                  </PaneIdProvider>
+                </PaneChrome>
               </div>,
             ];
             if (resizable && i === 0) {
