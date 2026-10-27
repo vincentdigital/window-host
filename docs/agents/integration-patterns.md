@@ -147,6 +147,9 @@ Need homelab / third-party URL with own auth cookie?
 | Remote team module + desk chrome | ESM remote + event bridge (future loader) |
 | Muse graph updates a pane | Server-mediated only; no pane-to-pane |
 | Quick protocol spike | `examples/` harness — **never** import from `packages/*` |
+| **Prove all patterns interoperate** | [`00-integration-lab.html`](../../apps/desk/public/examples/00-integration-lab.html) + `test/integration-lab.test.ts` |
+
+The integration lab uses [`examples/_shared/lab-adapters.js`](../../examples/_shared/lab-adapters.js) to bridge widget, iframe, ESM, web component, and mock SSE into one `demo.ping` bus.
 
 ## Layer and repo rules (agents)
 

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lab iframe guest (duplex)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 0.5rem; font-size: 0.85rem; }
+      button { padding: 0.35rem 0.6rem; margin-bottom: 0.5rem; }
+      pre { font-size: 0.7rem; background: #f0f0f0; padding: 0.35rem; max-height: 5rem; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <p><strong>iframe</strong> (pattern 2)</p>
+    <button type="button" id="send">Send ping</button>
+    <pre id="in">(no inbound yet)</pre>
+    <script>
+      const PANE_ID = "iframe-guest";
+      const TOPIC = "demo.ping";
+
+      function wrap(envelope) {
+        return { channel: "window-host-bus", direction: "publish", envelope };
+      }
+
+      document.getElementById("send").onclick = () => {
+        const envelope = {
+          v: 1,
+          id: "bus-" + Date.now(),
+          topic: TOPIC,
+          source: { paneId: PANE_ID },
+          payload: { message: "ping", from: "iframe" },
+          at: Date.now(),
+        };
+        window.parent.postMessage(wrap(envelope), "*");
+      };
+
+      window.addEventListener("message", (event) => {
+        const data = event.data;
+        if (!data || data.channel !== "window-host-bus") return;
+        const env = data.envelope;
+        if (!env) return;
+        document.getElementById("in").textContent =
+          "from " + env.source.paneId + ":\n" + JSON.stringify(env.payload);
+      });
+    </script>
+  </body>
+</html>

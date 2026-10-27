@@ -11,6 +11,7 @@ Minimal, copy-friendly demos for each pane integration style. **Nothing here is 
 | 3 | [03-esm-remote](./03-esm-remote/) | Same-origin dynamic `import()` “micro-frontend” |
 | 4 | [04-web-component](./04-web-component/) | Custom element + DOM events |
 | 5 | [05-server-push](./05-server-push/) | Server-mediated fan-out (mock SSE) |
+| 6 | [06-integration-lab](./06-integration-lab/) | **All patterns on one bus** (harness + tests) |
 
 Shared wire shape: [protocol.md](./protocol.md).
 
@@ -20,6 +21,7 @@ Shared wire shape: [protocol.md](./protocol.md).
 # Desk dev — open example pages on the same origin as the shell
 npm run dev
 # → http://localhost:5173/examples/index.html
+# → http://localhost:5173/examples/00-integration-lab.html  (all patterns)
 
 # Mock push server (example 5 only)
 npm run examples:server

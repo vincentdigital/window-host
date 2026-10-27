@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Integration lab — all patterns</title>
+    <style>
+      :root {
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+      }
+      body { margin: 0.75rem; }
+      h1 { font-size: 1.1rem; margin: 0 0 0.5rem; }
+      .hint { color: #555; margin-bottom: 0.75rem; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+        gap: 0.5rem;
+      }
+      .pane {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 0.5rem;
+        min-height: 10rem;
+        display: flex;
+        flex-direction: column;
+      }
+      .pane h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.35rem; color: #666; }
+      .pane pre { font-size: 0.65rem; flex: 1; background: #f6f6f6; padding: 0.35rem; overflow: auto; margin: 0.35rem 0 0; }
+      iframe { flex: 1; width: 100%; min-height: 6rem; border: 1px solid #ddd; border-radius: 4px; }
+      button { font: inherit; padding: 0.3rem 0.55rem; cursor: pointer; }
+      .log {
+        margin-top: 0.75rem;
+        border-top: 1px solid #ddd;
+        padding-top: 0.5rem;
+      }
+      .log pre { max-height: 8rem; font-size: 0.7rem; background: #1e1e1e; color: #d4d4d4; padding: 0.5rem; }
+      .server-off { color: #a66; font-size: 0.75rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Integration lab</h1>
+    <p class="hint">
+      One shared bus (<code>demo.ping</code>). Ping from any pane — others should update.
+      Server pane needs <code>npm run examples:server</code>.
+    </p>
+
+    <div class="grid">
+      <section class="pane" id="p-widget">
+        <h2>1 · Widget</h2>
+        <button type="button" id="btn-widget">Fan out ping</button>
+        <pre id="out-widget">—</pre>
+      </section>
+
+      <section class="pane" id="p-iframe">
+        <h2>2 · iframe</h2>
+        <iframe id="lab-iframe" src="./lab-iframe-guest.html" title="lab guest"></iframe>
+        <pre id="out-iframe">—</pre>
+      </section>
+
+      <section class="pane" id="p-esm">
+        <h2>3 · ESM remote</h2>
+        <div id="esm-mount"></div>
+        <pre id="out-esm">—</pre>
+      </section>
+
+      <section class="pane" id="p-wc">
+        <h2>4 · Web component</h2>
+        <div id="wc-mount">
+          <wh-demo-card topic="demo.ping"></wh-demo-card>
+        </div>
+        <pre id="out-wc">—</pre>
+      </section>
+
+      <section class="pane" id="p-server">
+        <h2>5 · Server SSE</h2>
+        <p id="server-status" class="server-off">SSE: connecting…</p>
+        <button type="button" id="btn-server">POST publish</button>
+        <pre id="out-server">—</pre>
+      </section>
+    </div>
+
+    <div class="log">
+      <strong>Unified log</strong>
+      <pre id="unified"></pre>
+    </div>
+
+    <script src="./04-wh-demo-card.js"></script>
+    <script type="module">
+      import { createIntegrationLab } from "./_shared/lab-adapters.js";
+
+      const TOPIC = "demo.ping";
+      const SERVER = "http://127.0.0.1:9123";
+      const lab = createIntegrationLab({
+        topic: TOPIC,
+        allowedOrigins: [window.location.origin],
+      });
+
+      const paneOut = {
+        "widget-a": document.getElementById("out-widget"),
+        "iframe-guest": document.getElementById("out-iframe"),
+        "esm-remote": document.getElementById("out-esm"),
+        "web-component": document.getElementById("out-wc"),
+        server: document.getElementById("out-server"),
+      };
+
+      const unified = document.getElementById("unified");
+      const lines = [];
+
+      function show(envelope) {
+        const line = `${envelope.source.paneId} → ${JSON.stringify(envelope.payload)}`;
+        const pre = paneOut[envelope.source.paneId] ?? paneOut.server;
+        if (pre) pre.textContent = line;
+        lines.unshift(line);
+        unified.textContent = lines.slice(0, 12).join("\n");
+      }
+
+      lab.attachUnifiedLog(show);
+
+      document.getElementById("btn-widget").onclick = () => {
+        lab.publishFromWidget(lab.bus, "widget-a", TOPIC, { message: "from-widget" });
+      };
+
+      const iframe = document.getElementById("lab-iframe");
+      lab.attachIframeBridge("iframe-guest", () => iframe);
+
+      const esmMount = document.getElementById("esm-mount");
+      esmMount.addEventListener("wh-pane-emit", (e) => {
+        lab.ingestPaneEmit(lab.bus, { ...e.detail, paneId: "esm-remote" });
+      });
+      const { mount } = await import("./03-remote-pane.mjs");
+      mount(esmMount);
+
+      document.getElementById("wc-mount").addEventListener("wh-bus-request", (e) => {
+        lab.ingestBusRequest(lab.bus, { ...e.detail, paneId: "web-component" });
+      });
+
+      const status = document.getElementById("server-status");
+      let es;
+      try {
+        es = new EventSource(`${SERVER}/events?topic=${TOPIC}`);
+        es.addEventListener("envelope", (e) => {
+          lab.ingestServerEnvelope(lab.bus, JSON.parse(e.data));
+        });
+        es.onopen = () => {
+          status.textContent = "SSE: connected";
+          status.className = "";
+        };
+        es.onerror = () => {
+          status.textContent = "SSE: offline (run npm run examples:server)";
+          status.className = "server-off";
+        };
+      } catch {
+        status.textContent = "SSE: unavailable";
+      }
+
+      document.getElementById("btn-server").onclick = async () => {
+        try {
+          await fetch(`${SERVER}/publish`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              topic: TOPIC,
+              sourcePaneId: "server",
+              payload: { message: "from-server-post" },
+            }),
+          });
+        } catch {
+          status.textContent = "POST failed — is examples:server running?";
+        }
+      };
+    </script>
+  </body>
+</html>
