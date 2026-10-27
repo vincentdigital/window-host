@@ -1,11 +1,12 @@
-import type { PaneHost, Scene, WidgetId } from "@window-host/schema";
+import { isPickerEntryActive } from "@window-host/schema";
+import type { PaneHost, Scene } from "@window-host/schema";
 import { useCallback, useMemo } from "react";
 import {
   catalogForLayout,
   commitHosts,
   hostForPane,
+  setPaneFromPickerEntry,
   setPanePropInHosts,
-  setPaneWidgetInHosts,
   widgetIdFromHost,
 } from "./compose-helpers.js";
 
@@ -28,7 +29,7 @@ export function PaneHostPicker({
 }: Props) {
   const catalog = useMemo(() => catalogForLayout(scene), [scene]);
   const host = hostForPane(scene, paneId, hosts);
-  const active = widgetIdFromHost(host);
+  const activeWidget = widgetIdFromHost(host);
   const topic =
     host.kind === "widget" && typeof host.props?.topic === "string"
       ? host.props.topic
@@ -46,9 +47,9 @@ export function PaneHostPicker({
     [onHostsChange, scene],
   );
 
-  const setPaneWidget = useCallback(
-    (widgetId: WidgetId) => {
-      applyHosts(setPaneWidgetInHosts(hosts, paneId, widgetId));
+  const setPaneFromEntry = useCallback(
+    (entry: (typeof catalog)[number]) => {
+      applyHosts(setPaneFromPickerEntry(hosts, paneId, entry));
     },
     [applyHosts, hosts, paneId],
   );
@@ -60,11 +61,6 @@ export function PaneHostPicker({
     [applyHosts, hosts, paneId, scene],
   );
 
-  const chipClass = (id: WidgetId) => {
-    const base = variant === "compact" ? "wh-picker-pill" : "wh-compose-chip";
-    return active === id ? `${base} active` : base;
-  };
-
   return (
     <div className={`wh-host-picker ${variant}`}>
       <div
@@ -72,24 +68,28 @@ export function PaneHostPicker({
         role="listbox"
         aria-label={`Widget for ${paneId}`}
       >
-        {catalog.map((entry) => (
-          <button
-            key={entry.id}
-            type="button"
-            role="option"
-            aria-selected={active === entry.id}
-            className={chipClass(entry.id)}
-            title={entry.description}
-            onClick={() => setPaneWidget(entry.id)}
-          >
-            <span className="wh-picker-pill-label">{entry.label}</span>
-            {variant === "detailed" ? (
-              <span className="wh-compose-chip-desc">{entry.description}</span>
-            ) : null}
-          </button>
-        ))}
+        {catalog.map((entry) => {
+          const selected = isPickerEntryActive(host, entry);
+          const base = variant === "compact" ? "wh-picker-pill" : "wh-compose-chip";
+          return (
+            <button
+              key={entry.pickerKey}
+              type="button"
+              role="option"
+              aria-selected={selected}
+              className={selected ? `${base} active` : base}
+              title={entry.description}
+              onClick={() => setPaneFromEntry(entry)}
+            >
+              <span className="wh-picker-pill-label">{entry.label}</span>
+              {variant === "detailed" ? (
+                <span className="wh-compose-chip-desc">{entry.description}</span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
-      {active === "notes" ? (
+      {activeWidget === "notes" ? (
         <label className="wh-compose-field wh-compose-field-subtle">
           Slot
           <select value={notesSlot} onChange={(e) => setPaneProp("slot", e.target.value)}>
@@ -99,7 +99,7 @@ export function PaneHostPicker({
           </select>
         </label>
       ) : null}
-      {active === "bus-send" || active === "bus-listen" ? (
+      {activeWidget === "bus-send" || activeWidget === "bus-listen" ? (
         <label className="wh-compose-field wh-compose-field-subtle">
           Topic
           <input

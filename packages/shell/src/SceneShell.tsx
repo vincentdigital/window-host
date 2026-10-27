@@ -11,6 +11,7 @@ import type { PaneHost, Scene } from "@window-host/schema";
 import { PaneBusProvider, PaneIdProvider, renderPaneHost } from "@window-host/widgets";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PaneChrome } from "./PaneChrome.js";
+import { attachPaneIframeBusBridge } from "./iframe-bus-bridge.js";
 import { SceneOverview } from "./SceneOverview.js";
 
 function readSplit(key: string, fallback: number): number {
@@ -44,6 +45,13 @@ export function SceneShell({ scene }: { scene: Scene }) {
   );
 
   const bus = useMemo(() => createPaneBus(), [scene.id]);
+
+  useEffect(() => {
+    const allowed = [window.location.origin];
+    return attachPaneIframeBusBridge(bus, allowed, () =>
+      Array.from(document.querySelectorAll<HTMLIFrameElement>(".wh-pane-host-iframe")),
+    );
+  }, [bus]);
 
   useEffect(() => {
     if (scene.layout.kind === "split-horizontal") {

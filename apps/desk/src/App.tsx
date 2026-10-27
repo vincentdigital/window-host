@@ -3,12 +3,14 @@ import { SceneShell } from "@window-host/shell";
 import { useEffect, useState } from "react";
 import duetRaw from "../../../scenes/duet.scene.json";
 import linkRaw from "../../../scenes/link.scene.json";
+import playgroundRaw from "../../../scenes/playground.scene.json";
 import railRaw from "../../../scenes/rail.scene.json";
 
 const SCENES: Record<string, Scene> = {
   duet: parseScene(duetRaw),
   rail: parseScene(railRaw),
   link: parseScene(linkRaw),
+  playground: parseScene(playgroundRaw),
 };
 
 const SCENE_LIST = Object.values(SCENES);

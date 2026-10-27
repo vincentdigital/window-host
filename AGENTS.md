@@ -29,6 +29,7 @@ Wire format for cross-boundary messages: [`examples/protocol.md`](examples/proto
 | Task | Where |
 | --- | --- |
 | New widget | `packages/schema/src/widgets.ts`, `packages/widgets`, `registry.tsx` |
+| Example in pane | Picker → **Example · …** (`example-harness` + `props.harness`); paths in `schema/example-harnesses.ts` |
 | New scene | `scenes/*.scene.json`, register in `apps/desk/src/App.tsx` |
 | Pane compose UX | `packages/shell` (`PaneChrome`, `PaneHostPicker`) |
 | iframe bridge (future) | Adapt `examples/02-iframe-postmessage/parent-bridge.example.js` in shell |

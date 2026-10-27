@@ -4,11 +4,14 @@ import {
   writeComposeOverrides,
 } from "@window-host/core";
 import {
+  EXAMPLE_HARNESS_LABELS,
   WIDGET_CATALOG,
-  defaultHostForWidget,
+  exampleHarnessSchema,
+  hostFromPickerEntry,
+  pickerCatalogForLayout,
   type PaneHost,
+  type PickerCatalogEntry,
   type Scene,
-  type WidgetId,
 } from "@window-host/schema";
 
 export function hostForPane(
@@ -19,18 +22,24 @@ export function hostForPane(
   return hosts[paneId] ?? scene.panes.find((p) => p.id === paneId)!.host;
 }
 
-export function widgetIdFromHost(host: PaneHost): WidgetId | null {
+export function widgetIdFromHost(host: PaneHost): string | null {
   return host.kind === "widget" ? host.widgetId : null;
 }
 
 export function labelForHost(host: PaneHost): string {
   if (host.kind === "iframe") return host.title ?? "Embed";
+  if (host.kind === "widget" && host.widgetId === "example-harness") {
+    const h = typeof host.props?.harness === "string" ? host.props.harness : "integration-lab";
+    const parsed = exampleHarnessSchema.safeParse(h);
+    if (parsed.success) return `Example · ${EXAMPLE_HARNESS_LABELS[parsed.data]}`;
+    return "Example";
+  }
   const entry = WIDGET_CATALOG.find((w) => w.id === host.widgetId);
   return entry?.label ?? host.widgetId;
 }
 
-export function catalogForLayout(scene: Scene) {
-  return WIDGET_CATALOG.filter((w) => w.layouts.includes(scene.layout.kind));
+export function catalogForLayout(scene: Scene): PickerCatalogEntry[] {
+  return pickerCatalogForLayout(scene.layout.kind as "split-horizontal" | "trinity-rail");
 }
 
 export function commitHosts(scene: Scene, hosts: Record<string, PaneHost>): void {
@@ -39,12 +48,12 @@ export function commitHosts(scene: Scene, hosts: Record<string, PaneHost>): void
   else writeComposeOverrides(scene.id, overrides);
 }
 
-export function setPaneWidgetInHosts(
+export function setPaneFromPickerEntry(
   hosts: Record<string, PaneHost>,
   paneId: string,
-  widgetId: WidgetId,
+  entry: PickerCatalogEntry,
 ): Record<string, PaneHost> {
-  return { ...hosts, [paneId]: defaultHostForWidget(widgetId) };
+  return { ...hosts, [paneId]: hostFromPickerEntry(entry) };
 }
 
 export function setPanePropInHosts(

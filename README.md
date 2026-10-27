@@ -11,6 +11,7 @@ A minimal **desk shell**: compose panes with a draggable split, ship as a **stat
 | **Duet** | `split-horizontal` (resizable) | Zoom out notes · Pomodoro |
 | **Rail** | `trinity-rail` (22 / 56 / 22) | Zoom out · Pomodoro · Zoom in |
 | **Link** | `split-horizontal` | Bus send · Bus listen (POC) |
+| **Playground** | `split-horizontal` | Example iframe guest · Bus listen |
 
 Open the desk with `?scene=duet`, `?scene=rail`, or `?scene=link`, or use the scene pills.
 

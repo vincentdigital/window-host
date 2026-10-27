@@ -5,6 +5,7 @@ export const widgetIdSchema = z.enum([
   "pomodoro",
   "bus-send",
   "bus-listen",
+  "example-harness",
 ]);
 
 export type WidgetId = z.infer<typeof widgetIdSchema>;
