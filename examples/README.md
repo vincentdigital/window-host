@@ -2,6 +2,8 @@
 
 Minimal, copy-friendly demos for each pane integration style. **Nothing here is imported by `@window-host/*`** — use them to spike protocols and manual tests while the shell stays thin.
 
+**When to use which pattern (agents):** [`docs/agents/integration-patterns.md`](../docs/agents/integration-patterns.md) · summary in [`AGENTS.md`](../AGENTS.md).
+
 | # | Folder | Pattern |
 | --- | --- | --- |
 | 1 | [01-widget-bus](./01-widget-bus/) | First-party UI + in-tab pane bus (see also desk `?scene=link`) |

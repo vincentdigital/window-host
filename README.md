@@ -37,6 +37,8 @@ npm run dev
 
 **Integration spikes** (iframe, ESM remote, web components, mock SSE) live in [`examples/`](examples/) and ship as static pages under `apps/desk/public/examples/` — open `/examples/index.html` during `npm run dev`. Not imported by core packages.
 
+**Agents:** [`AGENTS.md`](AGENTS.md) and [`docs/agents/integration-patterns.md`](docs/agents/integration-patterns.md) — when to use each integration style.
+
 ## Test
 
 ```bash
