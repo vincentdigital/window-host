@@ -519,6 +519,31 @@ body {
   color: var(--wh-muted);
 }
 
+.wh-overview-hint {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  color: var(--wh-muted);
+  line-height: 1.4;
+}
+
+.wh-overview-hint code {
+  font-size: 0.68rem;
+}
+
+.wh-overview-snapshot {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.65rem;
+  line-height: 1.35;
+  max-height: 14rem;
+  overflow: auto;
+  border-radius: var(--wh-radius);
+  border: 1px solid var(--wh-divider);
+  background: color-mix(in srgb, var(--wh-bg) 92%, var(--wh-fg));
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .wh-overview-foot {
   margin-top: auto;
   display: flex;

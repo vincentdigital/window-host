@@ -5,19 +5,20 @@ import { SceneShell } from "@window-host/shell";
 import { act, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { assertUxExpectation } from "../packages/shell/src/ux-expectations.js";
-import duetRaw from "../scenes/duet.scene.json";
-import linkRaw from "../scenes/link.scene.json";
-import playgroundBus from "../scenes/ux/playground-bus-reaches-listen.json";
-import linkUx from "../scenes/ux/link-send-listen.json";
-import playgroundRaw from "../scenes/playground.scene.json";
 
-const SCENES: Record<string, Scene> = {
-  duet: parseScene(duetRaw),
-  link: parseScene(linkRaw),
-  playground: parseScene(playgroundRaw),
-};
+const sceneModules = import.meta.glob("../scenes/*.scene.json", {
+  eager: true,
+}) as Record<string, { default: unknown }>;
 
-const UX_FILES = [playgroundBus, linkUx];
+const SCENES: Record<string, Scene> = {};
+for (const mod of Object.values(sceneModules)) {
+  const scene = parseScene(mod.default);
+  SCENES[scene.id] = scene;
+}
+
+const uxModules = import.meta.glob("../scenes/ux/*.json", {
+  eager: true,
+}) as Record<string, { default: { name?: string } }>;
 
 function runGrandparent(raw: unknown) {
   const scenario = parseUxScenario(raw);
@@ -55,7 +56,8 @@ function runGrandparent(raw: unknown) {
 }
 
 describe("grandparent UX scenarios", () => {
-  for (const file of UX_FILES) {
-    it(file.name, () => runGrandparent(file));
+  for (const [filePath, mod] of Object.entries(uxModules)) {
+    const title = mod.default.name ?? filePath.split("/").pop()!;
+    it(title, () => runGrandparent(mod.default));
   }
 });

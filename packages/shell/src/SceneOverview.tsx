@@ -1,7 +1,8 @@
 import { clearComposeOverrides, type PaneBus } from "@window-host/core";
 import type { PaneHost, Scene } from "@window-host/schema";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { labelForHost } from "./compose-helpers.js";
+import type { DeskSnapshot } from "./desk-session.js";
 import { PaneHostPicker } from "./PaneHostPicker.js";
 
 type Props = {
@@ -38,8 +39,28 @@ export function SceneOverview({
 }: Props) {
   const [expandedPane, setExpandedPane] = useState<string | null>(null);
   const [busLog, setBusLog] = useState<ReturnType<PaneBus["history"]>>([]);
+  const [deskSnap, setDeskSnap] = useState<DeskSnapshot | null>(null);
 
   const overrideCount = useMemo(() => Object.keys(composeHosts).length, [composeHosts]);
+
+  const refreshDeskSnap = useCallback(() => {
+    const api = window.__windowHost;
+    if (api) setDeskSnap(api.getSnapshot());
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      setDeskSnap(null);
+      return;
+    }
+    refreshDeskSnap();
+    const off = window.__windowHost?.subscribe(() => refreshDeskSnap());
+    return () => off?.();
+  }, [open, refreshDeskSnap]);
+
+  useEffect(() => {
+    if (open) refreshDeskSnap();
+  }, [open, split, composeHosts, effectiveScene, busLog, refreshDeskSnap]);
 
   useEffect(() => {
     if (!open) return;
@@ -155,6 +176,19 @@ export function SceneOverview({
               );
             })}
           </ul>
+        </section>
+
+        <section className="wh-overview-section" aria-label="Desk session snapshot">
+          <h3 className="wh-overview-section-label">Desk session</h3>
+          <p className="wh-overview-hint">
+            Same <code>getSnapshot()</code> object grandparent tests assert — copy from console via{" "}
+            <code>__windowHost.getSnapshot()</code>.
+          </p>
+          {deskSnap ? (
+            <pre className="wh-overview-snapshot">{JSON.stringify(deskSnap, null, 2)}</pre>
+          ) : (
+            <p className="wh-overview-empty">Session API not available.</p>
+          )}
         </section>
 
         <section className="wh-overview-section" aria-label="Bus debug">

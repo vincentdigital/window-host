@@ -82,7 +82,6 @@ export function registerDeskSession(deps: DeskSessionDeps): () => void {
       switch (command.type) {
         case "bus.publish": {
           deps.bus.publish(command.paneId ?? "session", command.topic, command.payload);
-          notify();
           return { ok: true };
         }
         case "compose.reset": {
@@ -126,12 +125,15 @@ export function registerDeskSession(deps: DeskSessionDeps): () => void {
 
   window[GLOBAL_KEY] = api;
 
-  const unsubs = ["demo.ping"].map((topic) =>
-    deps.bus.subscribe(topic, () => notify()),
-  );
+  const originalPublish = deps.bus.publish.bind(deps.bus);
+  deps.bus.publish = (paneId, topic, payload, correlationId) => {
+    const envelope = originalPublish(paneId, topic, payload, correlationId);
+    notify();
+    return envelope;
+  };
 
   return () => {
-    unsubs.forEach((u) => u());
+    deps.bus.publish = originalPublish;
     listeners.clear();
     if (window[GLOBAL_KEY] === api) delete window[GLOBAL_KEY];
   };

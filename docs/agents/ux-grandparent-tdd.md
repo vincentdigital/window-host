@@ -55,7 +55,7 @@ Playwright is **optional** (split drag, visual polish). **Grandparent tests are 
 
 Schema: `packages/schema/src/ux-scenario.ts` (`parseUxScenario`).
 
-Register new scenario files in `test/grandparent.test.tsx` (import JSON) until we add glob discovery.
+**Discovery:** drop a new `scenes/ux/*.json` file — `test/grandparent.test.tsx` and `test/ux-scenarios.test.ts` glob it automatically (no manual imports). The UX scenarios test fails if JSON is invalid or `sceneId` is unknown.
 
 ## Forcing UX without Playwright
 

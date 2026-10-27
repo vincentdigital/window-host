@@ -46,6 +46,7 @@ Wire format for cross-boundary messages: [`examples/protocol.md`](examples/proto
 | Pane bus (widgets) | `packages/shell/src/link-bus.test.tsx` |
 | Per-pane picker | `packages/shell/src/pane-picker.test.tsx` |
 | Architecture | `test/architecture.test.ts`, `test/leak.test.ts` |
+| Grandparent UX JSON | `test/ux-scenarios.test.ts` (parse + scene id); flows in `test/grandparent.test.tsx` |
 | All integration patterns ↔ one bus | `test/integration-lab.test.ts` + `/examples/00-integration-lab.html` |
 
 Individual pattern harnesses: manual via `/examples/index.html`. Full cross-pattern lab: `00-integration-lab.html` (run `npm run examples:server` for pane 5).

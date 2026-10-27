@@ -13,7 +13,7 @@ How to **observe** and **drive** the desk SPA from agents, Playwright, or the br
 | Ephemeral | Pane bus messages | In-memory `createPaneBus()` per scene |
 | Widget-local | Notes text, pomodoro timer | Widget `localStorage` keys |
 
-**Scene overview** (Overview panel) is human debug UI over the same facts.
+**Scene overview** (Overview panel) shows live **`getSnapshot()` JSON** plus bus debug — same object grandparent tests assert.
 
 **Production direction (life wiki):** durable / cross-tab state via **host-runtime** (GraphQL), not a growing `window` object.
 
