@@ -41,5 +41,6 @@ Wire format for cross-boundary messages: [`examples/protocol.md`](examples/proto
 | Pane bus (widgets) | `packages/shell/src/link-bus.test.tsx` |
 | Per-pane picker | `packages/shell/src/pane-picker.test.tsx` |
 | Architecture | `test/architecture.test.ts`, `test/leak.test.ts` |
+| All integration patterns ↔ one bus | `test/integration-lab.test.ts` + `/examples/00-integration-lab.html` |
 
-No automated tests for iframe/ESM/WC/server examples — use harness pages and manual checks.
+Individual pattern harnesses: manual via `/examples/index.html`. Full cross-pattern lab: `00-integration-lab.html` (run `npm run examples:server` for pane 5).

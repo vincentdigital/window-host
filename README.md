@@ -39,6 +39,8 @@ npm run dev
 
 **Agents:** [`AGENTS.md`](AGENTS.md) and [`docs/agents/integration-patterns.md`](docs/agents/integration-patterns.md) — when to use each integration style.
 
+**Integration lab:** [`/examples/00-integration-lab.html`](apps/desk/public/examples/00-integration-lab.html) — all five patterns on one bus (`npm run examples:server` for SSE pane).
+
 ## Test
 
 ```bash
