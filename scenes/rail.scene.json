@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "id": "rail",
+  "title": "Rail",
+  "layout": { "kind": "trinity-rail", "leftRail": 0.22, "rightRail": 0.22 },
+  "panes": [
+    {
+      "id": "out",
+      "host": {
+        "kind": "widget",
+        "widgetId": "notes",
+        "props": { "slot": "zoom-out", "label": "Zoom out" }
+      }
+    },
+    {
+      "id": "center",
+      "host": { "kind": "widget", "widgetId": "pomodoro" }
+    },
+    {
+      "id": "in",
+      "host": {
+        "kind": "widget",
+        "widgetId": "notes",
+        "props": { "slot": "zoom-in", "label": "Zoom in" }
+      }
+    }
+  ]
+}

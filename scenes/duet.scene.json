@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "id": "duet",
+  "title": "Duet",
+  "layout": { "kind": "split-horizontal", "split": 0.52 },
+  "panes": [
+    {
+      "id": "reflect",
+      "host": {
+        "kind": "widget",
+        "widgetId": "notes",
+        "props": { "slot": "zoom-out", "label": "Zoom out" }
+      }
+    },
+    {
+      "id": "focus",
+      "host": { "kind": "widget", "widgetId": "pomodoro" }
+    }
+  ]
+}
