@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "name": "Playground listen pane sees a bus ping",
+  "description": "When something publishes on demo.ping, the listen pane's bus buffer records it (no Playwright, no clicking).",
+  "sceneId": "playground",
+  "when": [
+    {
+      "type": "bus.publish",
+      "topic": "demo.ping",
+      "payload": { "message": "grandparent" },
+      "paneId": "session"
+    }
+  ],
+  "then": {
+    "snapshot": {
+      "sceneId": "playground",
+      "paneWidgetIds": {
+        "listen": "bus-listen"
+      },
+      "minBusMessages": 1
+    },
+    "busLast": {
+      "topic": "demo.ping",
+      "payload": { "message": "grandparent" }
+    }
+  }
+}

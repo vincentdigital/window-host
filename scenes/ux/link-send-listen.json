@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "name": "Link scene panes are wired for bus POC",
+  "description": "Default Link layout: send and listen widgets on the same topic.",
+  "sceneId": "link",
+  "when": [
+    {
+      "type": "bus.publish",
+      "topic": "demo.ping",
+      "payload": { "message": "link-flow" },
+      "paneId": "send"
+    }
+  ],
+  "then": {
+    "snapshot": {
+      "sceneId": "link",
+      "paneWidgetIds": {
+        "send": "bus-send",
+        "listen": "bus-listen"
+      },
+      "minBusMessages": 1
+    },
+    "busLast": {
+      "topic": "demo.ping",
+      "payload": { "message": "link-flow" }
+    }
+  }
+}

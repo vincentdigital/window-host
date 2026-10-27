@@ -19,6 +19,14 @@ export {
   type PickerCatalogEntry,
 } from "./catalog.js";
 export {
+  parseUxScenario,
+  uxCommandSchema,
+  uxExpectationSchema,
+  uxScenarioSchema,
+  type UxCommand,
+  type UxScenario,
+} from "./ux-scenario.js";
+export {
   SPLIT_MAX,
   SPLIT_MIN,
   layoutSchema,

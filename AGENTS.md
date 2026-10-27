@@ -26,6 +26,8 @@ Wire format for cross-boundary messages: [`examples/protocol.md`](examples/proto
 
 **Observe / drive the desk UI (debug & Playwright TDD):** [`docs/agents/frontend-control.md`](docs/agents/frontend-control.md) — `window.__windowHost` (`getSnapshot`, `dispatch`, `subscribe`). Not the same as workspace `GET /context` (broker is server-side).
 
+**UX grandparent TDD (required for bus/scene flows):** [`docs/agents/ux-grandparent-tdd.md`](docs/agents/ux-grandparent-tdd.md) — add/update `scenes/ux/*.json`, run `test/grandparent.test.tsx`. Force UX via snapshot + `dispatch`, not Playwright selectors.
+
 ## Common tasks
 
 | Task | Where |

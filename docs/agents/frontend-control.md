@@ -62,11 +62,16 @@ window.__windowHost.dispatch({
 
 Bus commands use the same **`BusEnvelope` v1** shape as panes ([`examples/protocol.md`](../../examples/protocol.md)).
 
+## UX without Playwright (grandparent tests)
+
+Declarative flows live in [`scenes/ux/`](../../scenes/ux/). Vitest runs them against `__windowHost` — see [`ux-grandparent-tdd.md`](./ux-grandparent-tdd.md). **Agents: change UX → update scenario JSON first.**
+
 ## TDD layers (recommended)
 
 1. **Unit / RTL** — `packages/*` tests (bus, shell, widgets). Fast, no browser.
-2. **Desk session** — `packages/shell/src/desk-session.test.ts`; assert snapshot + dispatch.
-3. **Playwright** — drive UI via roles **or** session API for stable pane/bus tests:
+2. **Grandparent UX** — `test/grandparent.test.tsx` + `scenes/ux/*.json` (required for scene/bus UX).
+3. **Desk session** — `packages/shell/src/desk-session.test.ts`; assert snapshot + dispatch.
+4. **Playwright** — layout/drag or optional checks; prefer session API over selectors:
 
 ```ts
 await page.goto("/?scene=playground");
