@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { widgetIdSchema } from "./widgets.js";
 
 export const SPLIT_MIN = 0.2;
 export const SPLIT_MAX = 0.8;
@@ -6,7 +7,7 @@ export const SPLIT_MAX = 0.8;
 export const paneHostSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("widget"),
-    widgetId: z.enum(["notes", "pomodoro"]),
+    widgetId: widgetIdSchema,
     props: z.record(z.string(), z.unknown()).optional(),
   }),
   z.object({

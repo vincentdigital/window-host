@@ -9,7 +9,7 @@ export type Layer = (typeof LAYERS)[number];
 export const ALLOWED: Record<Layer, readonly Layer[]> = {
   schema: [],
   core: ["schema"],
-  widgets: ["schema"],
+  widgets: ["schema", "core"],
   shell: ["schema", "core", "widgets"],
   desk: ["schema", "core", "shell", "widgets"],
 };
