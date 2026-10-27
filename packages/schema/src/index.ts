@@ -1,4 +1,11 @@
 export {
+  WIDGET_CATALOG,
+  defaultHostForWidget,
+  widgetIdSchema,
+  type WidgetCatalogEntry,
+  type WidgetId,
+} from "./widgets.js";
+export {
   SPLIT_MAX,
   SPLIT_MIN,
   layoutSchema,

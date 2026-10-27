@@ -1,12 +1,16 @@
 import {
   clampSplit,
+  createPaneBus,
   nudgeSplit,
   paneFractions,
+  readComposeOverrides,
+  sceneWithCompose,
   storageKeyForLayout,
 } from "@window-host/core";
-import type { Scene } from "@window-host/schema";
-import { renderPaneHost } from "@window-host/widgets";
+import type { PaneHost, Scene } from "@window-host/schema";
+import { PaneBusProvider, PaneIdProvider, renderPaneHost } from "@window-host/widgets";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { PaneComposer } from "./PaneComposer.js";
 
 function readSplit(key: string, fallback: number): number {
   try {
@@ -24,6 +28,21 @@ export function SceneShell({ scene }: { scene: Scene }) {
     scene.layout.kind === "split-horizontal" ? scene.layout.split : 0.5;
 
   const [split, setSplit] = useState(() => readSplit(layoutKey, defaultSplit));
+  const [composeHosts, setComposeHosts] = useState<Record<string, PaneHost>>(() =>
+    readComposeOverrides(scene.id) ?? {},
+  );
+  const [composerOpen, setComposerOpen] = useState(false);
+
+  useEffect(() => {
+    setComposeHosts(readComposeOverrides(scene.id) ?? {});
+  }, [scene.id]);
+
+  const effectiveScene = useMemo(
+    () => sceneWithCompose(scene, composeHosts),
+    [scene, composeHosts],
+  );
+
+  const bus = useMemo(() => createPaneBus(), [scene.id]);
 
   useEffect(() => {
     if (scene.layout.kind === "split-horizontal") {
@@ -31,10 +50,10 @@ export function SceneShell({ scene }: { scene: Scene }) {
     }
   }, [layoutKey, split, scene.layout.kind]);
 
-  const paneIds = useMemo(() => scene.panes.map((p) => p.id), [scene.panes]);
+  const paneIds = useMemo(() => effectiveScene.panes.map((p) => p.id), [effectiveScene.panes]);
   const fractions = useMemo(
-    () => paneFractions(scene.layout, split, paneIds),
-    [scene.layout, split, paneIds],
+    () => paneFractions(effectiveScene.layout, split, paneIds),
+    [effectiveScene.layout, split, paneIds],
   );
 
   const onDividerKey = useCallback(
@@ -64,44 +83,63 @@ export function SceneShell({ scene }: { scene: Scene }) {
     [],
   );
 
-  const resizable = scene.layout.kind === "split-horizontal";
+  const resizable = effectiveScene.layout.kind === "split-horizontal";
 
   return (
-    <div className="wh-scene" data-scene={scene.id}>
-      <div
-        className="wh-row"
-        ref={(el) => {
-          if (el) el.dataset.testid = "wh-row";
-        }}
-      >
-        {scene.panes.flatMap((pane, i) => {
-          const flex = fractions.find((f) => f.paneId === pane.id)?.flex ?? 1;
-          const out = [
-            <div key={pane.id} className="wh-pane" style={{ flex }} data-pane={pane.id}>
-              {renderPaneHost(pane.host)}
-            </div>,
-          ];
-          if (resizable && i === 0) {
-            out.push(
-              <div
-                key="divider"
-                className="wh-divider"
-                role="separator"
-                aria-orientation="vertical"
-                aria-valuenow={Math.round(split * 100)}
-                tabIndex={0}
-                onKeyDown={onDividerKey}
-                onDoubleClick={() => setSplit(0.5)}
-                onPointerDown={(e) => {
-                  const row = e.currentTarget.parentElement?.getBoundingClientRect();
-                  if (row) startDrag(e, row);
-                }}
-              />,
-            );
-          }
-          return out;
-        })}
+    <PaneBusProvider bus={bus}>
+      <div className="wh-scene" data-scene={effectiveScene.id}>
+        <button
+          type="button"
+          className="wh-compose-trigger"
+          onClick={() => setComposerOpen(true)}
+          aria-haspopup="dialog"
+        >
+          Compose
+        </button>
+        <div
+          className="wh-row"
+          ref={(el) => {
+            if (el) el.dataset.testid = "wh-row";
+          }}
+        >
+          {effectiveScene.panes.flatMap((pane, i) => {
+            const flex = fractions.find((f) => f.paneId === pane.id)?.flex ?? 1;
+            const out = [
+              <div key={pane.id} className="wh-pane" style={{ flex }} data-pane={pane.id}>
+                <PaneIdProvider paneId={pane.id}>
+                  {renderPaneHost(pane.host)}
+                </PaneIdProvider>
+              </div>,
+            ];
+            if (resizable && i === 0) {
+              out.push(
+                <div
+                  key="divider"
+                  className="wh-divider"
+                  role="separator"
+                  aria-orientation="vertical"
+                  aria-valuenow={Math.round(split * 100)}
+                  tabIndex={0}
+                  onKeyDown={onDividerKey}
+                  onDoubleClick={() => setSplit(0.5)}
+                  onPointerDown={(e) => {
+                    const row = e.currentTarget.parentElement?.getBoundingClientRect();
+                    if (row) startDrag(e, row);
+                  }}
+                />,
+              );
+            }
+            return out;
+          })}
+        </div>
+        <PaneComposer
+          scene={scene}
+          open={composerOpen}
+          onClose={() => setComposerOpen(false)}
+          hosts={composeHosts}
+          onHostsChange={setComposeHosts}
+        />
       </div>
-    </div>
+    </PaneBusProvider>
   );
 }

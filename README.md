@@ -10,16 +10,19 @@ A minimal **desk shell**: compose panes with a draggable split, ship as a **stat
 | --- | --- | --- |
 | **Duet** | `split-horizontal` (resizable) | Zoom out notes · Pomodoro |
 | **Rail** | `trinity-rail` (22 / 56 / 22) | Zoom out · Pomodoro · Zoom in |
+| **Link** | `split-horizontal` | Bus send · Bus listen (POC) |
 
-Open the desk with `?scene=duet` or `?scene=rail`, or use the scene pills.
+Open the desk with `?scene=duet`, `?scene=rail`, or `?scene=link`, or use the scene pills.
+
+Use **Compose** (top-right) to pick a widget per pane; choices persist in `localStorage` per scene. **Link · send** / **Link · listen** widgets share an in-tab **pane bus** (`BusEnvelope` v1 in `@window-host/core`) — the same contract the plan later bridges to host-runtime GraphQL.
 
 ## Packages
 
 | Package | Role |
 | --- | --- |
 | `@window-host/schema` | Scene manifest (Zod) — 1:1 with JSON |
-| `@window-host/core` | Layout math, split clamp, storage keys |
-| `@window-host/widgets` | Notes (zoom-in/out slots), Pomodoro |
+| `@window-host/core` | Layout math, split clamp, compose storage, pane bus |
+| `@window-host/widgets` | Notes, Pomodoro, bus send/listen |
 | `@window-host/shell` | `SceneShell` — row, divider, hosts |
 | `@window-host/desk` | Vite app — static deploy artifact |
 
