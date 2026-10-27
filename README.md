@@ -35,6 +35,8 @@ npm install
 npm run dev
 ```
 
+**Integration spikes** (iframe, ESM remote, web components, mock SSE) live in [`examples/`](examples/) and ship as static pages under `apps/desk/public/examples/` — open `/examples/index.html` during `npm run dev`. Not imported by core packages.
+
 ## Test
 
 ```bash

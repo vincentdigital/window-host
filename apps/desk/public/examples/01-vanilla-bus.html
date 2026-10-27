@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>01 vanilla pane bus</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1rem; }
+      .row { display: flex; gap: 1rem; }
+      .pane { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 1rem; min-height: 8rem; }
+      pre { font-size: 0.8rem; background: #f4f4f4; padding: 0.5rem; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>01 — Vanilla pane bus</h1>
+    <div class="row">
+      <div class="pane" id="send">
+        <strong>send</strong>
+        <button type="button">Send ping</button>
+      </div>
+      <div class="pane" id="listen">
+        <strong>listen</strong>
+        <pre id="feed"></pre>
+      </div>
+    </div>
+    <script type="module">
+      import { createMiniBus } from "./_shared/mini-bus.js";
+      const bus = createMiniBus();
+      const TOPIC = "demo.ping";
+      const feed = document.getElementById("feed");
+      bus.subscribe(TOPIC, (e) => {
+        feed.textContent = JSON.stringify(e, null, 2);
+      });
+      document.querySelector("#send button").onclick = () => {
+        bus.publish("send", TOPIC, { message: "ping" });
+      };
+    </script>
+  </body>
+</html>

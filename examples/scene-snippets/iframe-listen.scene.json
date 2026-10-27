@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "id": "iframe-listen",
+  "title": "Iframe + listen (local)",
+  "layout": { "kind": "split-horizontal", "split": 0.5 },
+  "panes": [
+    {
+      "id": "guest",
+      "host": {
+        "kind": "iframe",
+        "url": "http://localhost:5173/examples/02-iframe-guest.html",
+        "title": "Guest"
+      }
+    },
+    {
+      "id": "listen",
+      "host": {
+        "kind": "widget",
+        "widgetId": "bus-listen",
+        "props": { "topic": "demo.ping" }
+      }
+    }
+  ]
+}

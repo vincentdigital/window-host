@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>04 web component</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1rem; }
+      pre { font-size: 0.8rem; background: #f4f4f4; padding: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <h1>04 — Web component</h1>
+    <div id="pane">
+      <wh-demo-card topic="demo.ping"></wh-demo-card>
+    </div>
+    <pre id="log">click button on card…</pre>
+    <script src="./04-wh-demo-card.js"></script>
+    <script>
+      document.getElementById("pane").addEventListener("wh-bus-request", (e) => {
+        document.getElementById("log").textContent =
+          "pane root would call bus.publish:\n" + JSON.stringify(e.detail, null, 2);
+      });
+    </script>
+  </body>
+</html>

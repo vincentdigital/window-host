@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>05 server SSE</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1rem; }
+      pre { font-size: 0.8rem; background: #f4f4f4; padding: 0.5rem; min-height: 6rem; }
+    </style>
+  </head>
+  <body>
+    <h1>05 — Server-mediated (mock SSE)</h1>
+    <p>Run <code>npm run examples:server</code> then use buttons below.</p>
+    <button type="button" id="pub">POST publish from “pane A”</button>
+    <pre id="log">connecting…</pre>
+    <script>
+      const BASE = "http://127.0.0.1:9123";
+      const TOPIC = "demo.ping";
+      const log = document.getElementById("log");
+
+      const es = new EventSource(`${BASE}/events?topic=${TOPIC}`);
+      es.addEventListener("envelope", (e) => {
+        log.textContent = "SSE envelope:\n" + JSON.stringify(JSON.parse(e.data), null, 2);
+      });
+      es.onerror = () => {
+        log.textContent = "SSE error — is examples:server running on :9123?";
+      };
+
+      document.getElementById("pub").onclick = async () => {
+        const res = await fetch(`${BASE}/publish`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topic: TOPIC,
+            sourcePaneId: "pane-a",
+            payload: { message: "from-server-publish" },
+          }),
+        });
+        log.textContent = "POST response:\n" + JSON.stringify(await res.json(), null, 2);
+      };
+    </script>
+  </body>
+</html>

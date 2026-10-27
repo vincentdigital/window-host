@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>02 iframe postMessage harness</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1rem; }
+      .row { display: flex; gap: 1rem; align-items: stretch; }
+      iframe { flex: 1; min-height: 12rem; border: 1px solid #ccc; border-radius: 8px; }
+      pre { flex: 1; font-size: 0.75rem; background: #f4f4f4; padding: 0.5rem; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>02 — Parent bridge (stand-in for shell)</h1>
+    <p>Click <strong>Send ping</strong> in the iframe; parent logs validated envelopes.</p>
+    <div class="row">
+      <iframe src="./02-iframe-guest.html" title="guest"></iframe>
+      <pre id="parent-log">waiting…</pre>
+    </div>
+    <script type="module">
+      import { createMiniBus } from "./_shared/mini-bus.js";
+
+      const bus = createMiniBus();
+      const allowed = [window.location.origin];
+      const logEl = document.getElementById("parent-log");
+      const lines = [];
+
+      function attachIframeBusBridge(bus, paneId, allowedOrigins) {
+        const onMessage = (event) => {
+          if (!allowedOrigins.includes(event.origin)) return;
+          const data = event.data;
+          if (!data || data.channel !== "window-host-bus" || data.direction !== "publish") return;
+          const env = data.envelope;
+          if (!env || env.v !== 1) return;
+          bus.publish(paneId, env.topic, env.payload);
+        };
+        window.addEventListener("message", onMessage);
+        return () => window.removeEventListener("message", onMessage);
+      }
+
+      attachIframeBusBridge(bus, "iframe-guest", allowed);
+      bus.subscribe("demo.ping", (e) => {
+        lines.unshift(JSON.stringify(e, null, 2));
+        logEl.textContent = lines.slice(0, 5).join("\n---\n");
+      });
+    </script>
+  </body>
+</html>

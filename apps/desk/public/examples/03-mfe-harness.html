@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>03 ESM remote mount</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1rem; }
+      .row { display: flex; gap: 1rem; }
+      .mount { flex: 1; border: 1px dashed #888; border-radius: 8px; padding: 0.5rem; min-height: 8rem; }
+      pre { flex: 1; font-size: 0.8rem; background: #f4f4f4; padding: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <h1>03 — Dynamic import() remote pane</h1>
+    <div class="row">
+      <div class="mount" id="pane-a"></div>
+      <pre id="log">loading…</pre>
+    </div>
+    <script type="module">
+      const mountEl = document.getElementById("pane-a");
+      const logEl = document.getElementById("log");
+      mountEl.addEventListener("wh-pane-emit", (e) => {
+        logEl.textContent = "parent heard wh-pane-emit:\n" + JSON.stringify(e.detail, null, 2);
+      });
+      const { mount } = await import("./03-remote-pane.mjs");
+      mount(mountEl);
+      logEl.textContent = "remote mounted — click button in pane";
+    </script>
+  </body>
+</html>

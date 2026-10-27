@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>iframe guest — postMessage</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1rem; }
+      button { padding: 0.5rem 1rem; }
+      code { font-size: 0.85rem; }
+    </style>
+  </head>
+  <body>
+    <p>Iframe guest. Parent must allow this origin.</p>
+    <button type="button" id="send">Send ping to parent</button>
+    <pre id="log"></pre>
+    <script>
+      const PANE_ID = "iframe-guest";
+      const TOPIC = "demo.ping";
+
+      function envelope(payload) {
+        return {
+          v: 1,
+          id: "bus-" + Date.now(),
+          topic: TOPIC,
+          source: { paneId: PANE_ID },
+          payload,
+          at: Date.now(),
+        };
+      }
+
+      function wrap(envelope) {
+        return { channel: "window-host-bus", direction: "publish", envelope };
+      }
+
+      document.getElementById("send").onclick = () => {
+        const msg = wrap(envelope({ message: "ping", from: "iframe" }));
+        window.parent.postMessage(msg, "*");
+        document.getElementById("log").textContent = "posted:\n" + JSON.stringify(msg, null, 2);
+      };
+    </script>
+  </body>
+</html>
