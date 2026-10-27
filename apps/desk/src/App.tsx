@@ -49,7 +49,13 @@ export function App() {
           Examples
         </a>
       </nav>
-      <SceneShell scene={scene} />
+      <SceneShell
+        scene={scene}
+        deskSession={{
+          setSceneId,
+          allowedSceneIds: () => Object.keys(SCENES),
+        }}
+      />
     </div>
   );
 }

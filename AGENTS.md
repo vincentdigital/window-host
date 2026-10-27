@@ -24,6 +24,8 @@ Spikes live under [`examples/`](examples/) and `apps/desk/public/examples/` — 
 
 Wire format for cross-boundary messages: [`examples/protocol.md`](examples/protocol.md).
 
+**Observe / drive the desk UI (debug & Playwright TDD):** [`docs/agents/frontend-control.md`](docs/agents/frontend-control.md) — `window.__windowHost` (`getSnapshot`, `dispatch`, `subscribe`). Not the same as workspace `GET /context` (broker is server-side).
+
 ## Common tasks
 
 | Task | Where |

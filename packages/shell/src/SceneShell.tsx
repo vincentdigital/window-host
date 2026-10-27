@@ -1,5 +1,6 @@
 import {
   clampSplit,
+  clearComposeOverrides,
   createPaneBus,
   nudgeSplit,
   paneFractions,
@@ -12,7 +13,11 @@ import { PaneBusProvider, PaneIdProvider, renderPaneHost } from "@window-host/wi
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PaneChrome } from "./PaneChrome.js";
 import { attachPaneIframeBusBridge } from "./iframe-bus-bridge.js";
+import { commitHosts } from "./compose-helpers.js";
+import { registerDeskSession, type DeskSessionNav } from "./desk-session.js";
 import { SceneOverview } from "./SceneOverview.js";
+
+export type { DeskSessionApi, DeskSnapshot, DeskCommand } from "./desk-session.js";
 
 function readSplit(key: string, fallback: number): number {
   try {
@@ -24,7 +29,13 @@ function readSplit(key: string, fallback: number): number {
   }
 }
 
-export function SceneShell({ scene }: { scene: Scene }) {
+export function SceneShell({
+  scene,
+  deskSession,
+}: {
+  scene: Scene;
+  deskSession?: DeskSessionNav;
+}) {
   const layoutKey = storageKeyForLayout(scene.id, scene.layout.kind);
   const defaultSplit =
     scene.layout.kind === "split-horizontal" ? scene.layout.split : 0.5;
@@ -52,6 +63,26 @@ export function SceneShell({ scene }: { scene: Scene }) {
       Array.from(document.querySelectorAll<HTMLIFrameElement>(".wh-pane-host-iframe")),
     );
   }, [bus]);
+
+  useEffect(() => {
+    return registerDeskSession({
+      getScene: () => scene,
+      getEffectiveScene: () => effectiveScene,
+      getSplit: () => split,
+      getComposeHosts: () => composeHosts,
+      bus,
+      setComposeHosts: (hosts) => {
+        setComposeHosts(hosts);
+        commitHosts(scene, hosts);
+      },
+      clearCompose: () => {
+        setComposeHosts({});
+        clearComposeOverrides(scene.id);
+      },
+      setSceneId: deskSession?.setSceneId,
+      allowedSceneIds: deskSession?.allowedSceneIds,
+    });
+  }, [bus, scene, effectiveScene, split, composeHosts, deskSession]);
 
   useEffect(() => {
     if (scene.layout.kind === "split-horizontal") {
