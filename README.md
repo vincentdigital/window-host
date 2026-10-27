@@ -14,7 +14,7 @@ A minimal **desk shell**: compose panes with a draggable split, ship as a **stat
 
 Open the desk with `?scene=duet`, `?scene=rail`, or `?scene=link`, or use the scene pills.
 
-Use **Compose** (top-right) to pick a widget per pane; choices persist in `localStorage` per scene. **Link · send** / **Link · listen** widgets share an in-tab **pane bus** (`BusEnvelope` v1 in `@window-host/core`) — the same contract the plan later bridges to host-runtime GraphQL.
+Use each pane’s **header menu** (widget name ▾) to pick content; **All panes…** (bottom-right) opens the scene overview and reset. Choices persist in `localStorage` per scene. **Link · send** / **Link · listen** widgets share an in-tab **pane bus** (`BusEnvelope` v1 in `@window-host/core`) — the same contract the plan later bridges to host-runtime GraphQL.
 
 ## Packages
 
