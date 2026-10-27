@@ -38,24 +38,27 @@ export function PaneChrome({ scene, paneId, hosts, onHostsChange, children }: Pr
   return (
     <div className="wh-pane-shell" ref={shellRef} data-pane={paneId}>
       <header className="wh-pane-chrome">
-        <span className="wh-pane-chrome-id">{paneId}</span>
+        <span className="wh-pane-chrome-id" title={`Pane ${paneId}`}>{paneId}</span>
         <button
           type="button"
           className="wh-pane-chrome-picker"
           aria-expanded={open}
           aria-haspopup="dialog"
-          aria-label={`Choose content for ${paneId}, currently ${label}`}
+          aria-label={`Change content for ${paneId}, ${label}`}
+          title={`${label} — change`}
           onClick={() => setOpen((v) => !v)}
         >
           <span className="wh-pane-chrome-picker-label">{label}</span>
-          <span className="wh-pane-chrome-chevron" aria-hidden>▾</span>
+          <svg className="wh-pane-chrome-icon" width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+            <path fill="currentColor" d="M2 4.5 6 8l4-3.5H2z" />
+          </svg>
         </button>
       </header>
       {open ? (
         <div
           className="wh-pane-popover"
           role="dialog"
-          aria-label={`Content picker for ${paneId}`}
+          aria-label={`Content for ${paneId}`}
         >
           <PaneHostPicker
             scene={scene}
@@ -63,6 +66,7 @@ export function PaneChrome({ scene, paneId, hosts, onHostsChange, children }: Pr
             hosts={hosts}
             onHostsChange={onHostsChange}
             onClose={() => setOpen(false)}
+            variant="compact"
           />
         </div>
       ) : null}

@@ -19,7 +19,7 @@ describe("per-pane host picker", () => {
   it("opens from pane chrome and lists widgets", () => {
     render(<SceneShell scene={duet} />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Choose content for right, currently Focus/i }),
+      screen.getByRole("button", { name: /Change content for right, Focus/i }),
     );
     expect(screen.getByRole("option", { name: /Link · send/i })).toBeTruthy();
   });

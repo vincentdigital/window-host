@@ -11,7 +11,7 @@ import type { PaneHost, Scene } from "@window-host/schema";
 import { PaneBusProvider, PaneIdProvider, renderPaneHost } from "@window-host/widgets";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PaneChrome } from "./PaneChrome.js";
-import { PaneComposer } from "./PaneComposer.js";
+import { SceneOverview } from "./SceneOverview.js";
 
 function readSplit(key: string, fallback: number): number {
   try {
@@ -32,7 +32,7 @@ export function SceneShell({ scene }: { scene: Scene }) {
   const [composeHosts, setComposeHosts] = useState<Record<string, PaneHost>>(() =>
     readComposeOverrides(scene.id) ?? {},
   );
-  const [composerOpen, setComposerOpen] = useState(false);
+  const [overviewOpen, setOverviewOpen] = useState(false);
 
   useEffect(() => {
     setComposeHosts(readComposeOverrides(scene.id) ?? {});
@@ -91,11 +91,13 @@ export function SceneShell({ scene }: { scene: Scene }) {
       <div className="wh-scene" data-scene={effectiveScene.id}>
         <button
           type="button"
-          className="wh-scene-layout-link"
-          onClick={() => setComposerOpen(true)}
+          className="wh-scene-overview-trigger"
+          onClick={() => setOverviewOpen(true)}
           aria-haspopup="dialog"
+          title="Scene overview"
         >
-          All panes…
+          <span className="wh-scene-overview-dot" aria-hidden />
+          Overview
         </button>
         <div
           className="wh-row"
@@ -140,11 +142,14 @@ export function SceneShell({ scene }: { scene: Scene }) {
             return out;
           })}
         </div>
-        <PaneComposer
+        <SceneOverview
           scene={scene}
-          open={composerOpen}
-          onClose={() => setComposerOpen(false)}
-          hosts={composeHosts}
+          effectiveScene={effectiveScene}
+          split={split}
+          composeHosts={composeHosts}
+          bus={bus}
+          open={overviewOpen}
+          onClose={() => setOverviewOpen(false)}
           onHostsChange={setComposeHosts}
         />
       </div>

@@ -43,6 +43,9 @@ export function App() {
             {s.title}
           </button>
         ))}
+        <a className="wh-scene-pill wh-scene-pill-link" href="/examples/" title="Integration lab &amp; pattern spikes">
+          Examples
+        </a>
       </nav>
       <SceneShell scene={scene} />
     </div>

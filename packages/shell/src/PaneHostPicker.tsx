@@ -14,11 +14,18 @@ type Props = {
   paneId: string;
   hosts: Record<string, PaneHost>;
   onHostsChange: (hosts: Record<string, PaneHost>) => void;
-  /** Popover: show a dismiss control */
   onClose?: () => void;
+  variant?: "compact" | "detailed";
 };
 
-export function PaneHostPicker({ scene, paneId, hosts, onHostsChange, onClose }: Props) {
+export function PaneHostPicker({
+  scene,
+  paneId,
+  hosts,
+  onHostsChange,
+  onClose,
+  variant = "detailed",
+}: Props) {
   const catalog = useMemo(() => catalogForLayout(scene), [scene]);
   const host = hostForPane(scene, paneId, hosts);
   const active = widgetIdFromHost(host);
@@ -43,7 +50,7 @@ export function PaneHostPicker({ scene, paneId, hosts, onHostsChange, onClose }:
     (widgetId: WidgetId) => {
       applyHosts(setPaneWidgetInHosts(hosts, paneId, widgetId));
     },
-    [applyHosts, hosts, paneId, scene],
+    [applyHosts, hosts, paneId],
   );
 
   const setPaneProp = useCallback(
@@ -53,30 +60,39 @@ export function PaneHostPicker({ scene, paneId, hosts, onHostsChange, onClose }:
     [applyHosts, hosts, paneId, scene],
   );
 
+  const chipClass = (id: WidgetId) => {
+    const base = variant === "compact" ? "wh-picker-pill" : "wh-compose-chip";
+    return active === id ? `${base} active` : base;
+  };
+
   return (
-    <div className="wh-host-picker">
-      <div className="wh-compose-chips" role="listbox" aria-label={`Widget for ${paneId}`}>
+    <div className={`wh-host-picker ${variant}`}>
+      <div
+        className={variant === "compact" ? "wh-picker-pills" : "wh-compose-chips"}
+        role="listbox"
+        aria-label={`Widget for ${paneId}`}
+      >
         {catalog.map((entry) => (
           <button
             key={entry.id}
             type="button"
             role="option"
             aria-selected={active === entry.id}
-            className={active === entry.id ? "wh-compose-chip active" : "wh-compose-chip"}
+            className={chipClass(entry.id)}
+            title={entry.description}
             onClick={() => setPaneWidget(entry.id)}
           >
-            <span className="wh-compose-chip-title">{entry.label}</span>
-            <span className="wh-compose-chip-desc">{entry.description}</span>
+            <span className="wh-picker-pill-label">{entry.label}</span>
+            {variant === "detailed" ? (
+              <span className="wh-compose-chip-desc">{entry.description}</span>
+            ) : null}
           </button>
         ))}
       </div>
       {active === "notes" ? (
-        <label className="wh-compose-field">
-          Notes slot
-          <select
-            value={notesSlot}
-            onChange={(e) => setPaneProp("slot", e.target.value)}
-          >
+        <label className="wh-compose-field wh-compose-field-subtle">
+          Slot
+          <select value={notesSlot} onChange={(e) => setPaneProp("slot", e.target.value)}>
             <option value="zoom-out">Zoom out</option>
             <option value="zoom-in">Zoom in</option>
             <option value="default">Default</option>
@@ -84,8 +100,8 @@ export function PaneHostPicker({ scene, paneId, hosts, onHostsChange, onClose }:
         </label>
       ) : null}
       {active === "bus-send" || active === "bus-listen" ? (
-        <label className="wh-compose-field">
-          Bus topic
+        <label className="wh-compose-field wh-compose-field-subtle">
+          Topic
           <input
             type="text"
             value={topic}
@@ -96,7 +112,7 @@ export function PaneHostPicker({ scene, paneId, hosts, onHostsChange, onClose }:
       ) : null}
       {onClose ? (
         <div className="wh-host-picker-foot">
-          <button type="button" className="wh-btn wh-btn-ghost wh-btn-sm" onClick={onClose}>
+          <button type="button" className="wh-btn-ghost-subtle" onClick={onClose}>
             Done
           </button>
         </div>
