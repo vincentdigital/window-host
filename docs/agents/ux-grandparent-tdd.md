@@ -66,7 +66,7 @@ Iframe-heavy flows: prefer scenarios that `bus.publish` what the iframe *would* 
 ## What not to do
 
 - Do not assert UX only via implementation details (internal React state, module singletons).
-- Do not add homelab URLs to scenarios (leak scan).
+- Do not add homelab URLs to scenarios (`test/leak.test.ts` scans `scenes/ux/`).
 - Do not skip grandparent tests for “small” bus/scene changes.
 - Do not duplicate scenario prose only in PR description — the JSON in `scenes/ux/` is the contract.
 

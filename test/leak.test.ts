@@ -13,16 +13,25 @@ const TOKENS = [
   "muse.vincent",
 ];
 
-const SCAN_DIRS = ["packages/schema/src", "packages/core/src"];
+/** Shared packages — no tenant URLs (scene JSON / deploy hold those). */
+const PACKAGE_SCAN_DIRS = [
+  "packages/schema/src",
+  "packages/core/src",
+  "packages/widgets/src",
+  "packages/shell/src",
+];
 
-function scanDir(rel: string): { file: string; token: string }[] {
+function scanTextFiles(
+  rel: string,
+  extensions: string[],
+): { file: string; token: string }[] {
   const hits: { file: string; token: string }[] = [];
   const dir = path.join(root, rel);
   const walk = (d: string) => {
     for (const name of readdirSync(d)) {
       const full = path.join(d, name);
       if (statSync(full).isDirectory()) walk(full);
-      else if (name.endsWith(".ts")) {
+      else if (extensions.some((ext) => name.endsWith(ext))) {
         const text = readFileSync(full, "utf8");
         for (const token of TOKENS) {
           if (text.includes(token)) hits.push({ file: path.relative(root, full), token });
@@ -34,9 +43,29 @@ function scanDir(rel: string): { file: string; token: string }[] {
   return hits;
 }
 
+function scanUxScenarios(): { file: string; token: string }[] {
+  const hits: { file: string; token: string }[] = [];
+  const uxDir = path.join(root, "scenes/ux");
+  for (const name of readdirSync(uxDir)) {
+    if (!name.endsWith(".json")) continue;
+    const full = path.join(uxDir, name);
+    const text = readFileSync(full, "utf8");
+    for (const token of TOKENS) {
+      if (text.includes(token)) hits.push({ file: path.relative(root, full), token });
+    }
+  }
+  return hits;
+}
+
 describe("tenant leak", () => {
-  it("core and schema have no homelab or product host literals", () => {
-    const hits = SCAN_DIRS.flatMap(scanDir);
+  it("shared packages have no homelab or product host literals", () => {
+    const hits = PACKAGE_SCAN_DIRS.flatMap((rel) =>
+      scanTextFiles(rel, [".ts", ".tsx"]),
+    );
     expect(hits).toEqual([]);
+  });
+
+  it("grandparent UX scenarios (scenes/ux) have no tenant host literals", () => {
+    expect(scanUxScenarios()).toEqual([]);
   });
 });

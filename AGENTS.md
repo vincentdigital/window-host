@@ -5,8 +5,8 @@ Monorepo desk shell: scenes, pane layouts, widgets, static deploy. Read [`README
 ## Before you change code
 
 1. Run `npm test` and `npm run test:arch` — layer imports and leak scan are enforced.
-2. Do not put tenant hostnames in `packages/schema` or `packages/core`.
-3. Homelab iframe URLs belong in **scene JSON** or deploy config, not in shared packages.
+2. Do not put tenant hostnames in `@window-host/*` packages or `scenes/ux/` (enforced by `test/leak.test.ts`).
+3. Homelab iframe URLs belong in **`scenes/*.scene.json`** or deploy config, not in shared packages or UX contracts.
 
 ## Choosing a pane integration pattern
 
